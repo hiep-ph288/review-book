@@ -4,13 +4,24 @@ import {
   TouchableOpacity,
   View,
   Text,
-  Keyboard,
-  TextInput
+  TextInput,
 } from "react-native";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { firestore } from "../../util/firebaseConfig";
 import Button from "../ui/Button";
 import Input from "./Input";
 
 function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
+  const [fullname, setFullName] = useState("");
   const [enteredEmail, setEnteredEmail] = useState("");
   const [enteredConfirmEmail, setEnteredConfirmEmail] = useState("");
   const [enteredPassword, setEnteredPassword] = useState("");
@@ -40,40 +51,53 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
     }
   }
 
-  function submitHandler() {
+  const submitHandler = async () => {
     onSubmit({
       email: enteredEmail,
       confirmEmail: enteredConfirmEmail,
       password: enteredPassword,
       confirmPassword: enteredConfirmPassword,
     });
-  }
+    await setDoc(doc(firestore, "users", enteredEmail), {
+      fullname: fullname,
+      email: enteredEmail,
+      password: enteredPassword,
+      wishlist: "",
+      rated: "",
+      comment: "",
+    });
+  };
 
   return (
     <View style={styles.form}>
       <View>
-      {!isLogin && (
+        {!isLogin && (
           <Input
             label="Full Name"
+            onUpdateValue={(fullname) => setFullName(fullname)}
+            value={fullname}
           />
         )}
         <Input
-          label="Username"
+          label="Email Address"
+          onUpdateValue={updateInputValueHandler.bind(this, "email")}
+          value={enteredEmail}
           keyboardType="email-address"
+          isInvalid={emailIsInvalid}
         />
         {!isLogin && (
           <Input
-            label="Email Address"
-            onUpdateValue={updateInputValueHandler.bind(this, "email")}
-            value={enteredEmail}
+            label="Confirm Email Address"
+            onUpdateValue={updateInputValueHandler.bind(this, "confirmEmail")}
+            value={enteredConfirmEmail}
             keyboardType="email-address"
-            isInvalid={emailIsInvalid}
+            isInvalid={emailsDontMatch}
           />
         )}
         <Input
           label="Password"
           onUpdateValue={updateInputValueHandler.bind(this, "password")}
-          // secure
+          secure
           value={enteredPassword}
           isInvalid={passwordIsInvalid}
         />
@@ -84,7 +108,7 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
               this,
               "confirmPassword"
             )}
-            // secure
+            secure
             value={enteredConfirmPassword}
             isInvalid={passwordsDontMatch}
           />

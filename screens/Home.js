@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 
 
-function WelcomeScreen({ navigation }) {
+function Home({ navigation }) {
 
   return (
     <View style={styles.rootContainer}>
@@ -13,7 +13,7 @@ function WelcomeScreen({ navigation }) {
   );
 }
 
-export default WelcomeScreen;
+export default Home;
 
 const styles = StyleSheet.create({
   rootContainer: {
